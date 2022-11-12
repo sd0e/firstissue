@@ -11,7 +11,7 @@ export default function ListBox({ Title, Array, baseURL }) {
 				<hr className="bg-border" style={{ border: 'none', height: '2px' }} />
 				<div className="p-4 pb-2">
 					{Array.map(item => {
-						return <Pill color={item[1]} page={`${baseURL}${item[2]}`} key={item[0]}>{item[0]}</Pill>
+						return <Pill color={item[1]} page={`${baseURL}${item[2]}`} name={item[0]} key={item[0]}>{item[0]}</Pill>
 					})}
 				</div>
 			</div>

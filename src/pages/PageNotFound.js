@@ -14,7 +14,7 @@ export default function PageNotFound() {
 				Description="Page not found"
 				className="mb-6"
 			/>
-			<Link to="/">
+			<Link to="/" aria-label="Return to the homepage">
 				<Button variant="outlined">Return Home</Button>
 			</Link>
 		</div>
