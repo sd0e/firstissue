@@ -14,6 +14,9 @@ module.exports = {
       'gray-dark': '#273444',
       'gray': '#8492a6',
       'gray-light': '#d3dce6',
+      'border': 'rgba(255, 255, 255, 0.1)',
+      'semivisible': 'rgba(255, 255, 255, 0.4)',
+      'soft': 'rgba(255, 255, 255, 0.9)',
       'brand': '#d14fb8'
     },
     fontFamily: {

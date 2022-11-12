@@ -8,6 +8,23 @@ function App() {
 		palette: {
 			mode: 'dark',
 		},
+		typography: {
+			fontFamily: [
+				'"Inter"',
+				'sans-serif'
+			],
+		},
+		components: {
+			MuiButton: {
+				styleOverrides: {
+					root: {
+						fontWeight: 500,
+						textTransform: 'none',
+						fontFamily: '"Inter", sans-serif',
+					}
+				}
+			}
+		}
 	});
 
 	return (

@@ -1,10 +1,10 @@
 import React from 'react'
-import Header from '../Header'
+import PageHeader from './PageHeader'
 
 export default function Layout({ children }) {
 	return (
 		<div>
-			<Header />
+			<PageHeader />
 			<div className="px-6 py-2">
 				{children}
 			</div>
