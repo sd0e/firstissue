@@ -1,8 +1,19 @@
 import React from 'react'
 import Pill from './Pill'
 
-export default function ListBox({ Title, Array, baseURL }) {
+export default function ListBox({ Title, Topics, TopicFilter, baseURL }) {
 	// Array in format [[name, color, page], ...]
+	let Array = [];
+	Object.keys(Topics).forEach(topicName => {
+		if (Topics[topicName].type === TopicFilter) {
+			const arrayToAdd = [Topics[topicName].name, Topics[topicName].theme, topicName];
+			if (Topics[topicName].important) {
+				Array = [arrayToAdd, ...Array];
+			} else {
+				Array.push(arrayToAdd);
+			}
+		}
+	});
 
 	return (
 		<div className="border-solid border-2 border-border rounded-lg mt-6">

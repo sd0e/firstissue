@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 
 import Layout from './Layout';
@@ -7,9 +7,12 @@ import Home from '../../pages/Home';
 import PageNotFound from '../../pages/PageNotFound';
 import Account from '../../pages/Account';
 import New from '../../pages/New';
+import AccountCreated from '../../pages/AccountCreated';
+import fetch from '../../firebase/fetch';
 
 export default function PageRoutes() {
 	const location = useLocation();
+	let navigate = useNavigate();
     
     const [user, setUser] = useState('Loading');
 
@@ -27,7 +30,20 @@ export default function PageRoutes() {
                 newLastTriggered();
                 // last trigger was more than 20 ms ago
 
-				setUser(userFetched);
+				if (userFetched && userFetched !== 'Loading') {
+					fetch(`/users/${userFetched.uid}/public/displayName`)
+						.then(displayName => {
+							if (!displayName) {
+								// account just created
+								setUser(userFetched);
+								navigate('/accountcreated');
+							} else {
+								setUser(userFetched);
+							}
+						});
+				} else {
+					setUser(userFetched);
+				}
             }
         });
     }, []);
@@ -37,6 +53,7 @@ export default function PageRoutes() {
 			<Routes location={location} key={location.pathname}>
 				<Route path="/" element={<Home />} />
 				<Route path="/account" element={<Account user={user} />} />
+				<Route path="/accountcreated" element={<AccountCreated user={user} />} />
 				<Route path="/new" element={<New />} />
 				<Route path="*" element={<PageNotFound />} />
 			</Routes>

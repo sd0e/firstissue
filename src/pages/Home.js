@@ -7,11 +7,9 @@ import InfoContainer from '../components/ui/InfoContainer';
 import fetch from '../firebase/fetch';
 
 export default function Home() {
-	const [languages, setLanguages] = useState(null);
-	const [frameworks, setFrameworks] = useState(null);
+	const [topics, setTopics] = useState(null);
 
-	const langBaseURL = '/browse/language/';
-	const frameworkBaseURL = '/browse/framework/';
+	const topicBaseURL = '/browse/';
 
 	let lastTriggered = 0;
 
@@ -25,24 +23,21 @@ export default function Home() {
 			newLastTriggered();
 			// last trigger was more than 200 ms ago
 			
-			fetch(`/languages`).then(languages => {
-				fetch(`/frameworks`).then(frameworks => {
-					setLanguages(languages);
-					setFrameworks(frameworks);
-				});
+			fetch(`/topics`).then(topics => {
+				setTopics(topics);
 			})
 		}
 	}, []);
 
-	if (languages && frameworks) {
+	if (topics) {
 		return (
 			<div>
 				<Header />
 				<h1 className="font-semibold font-sans text-xl mb-6">{config.short_description}</h1>
 
 				<h2 className="font-semibold font-sans text-l">Browse</h2>
-				<ListBox Title="Languages" Array={languages} baseURL={langBaseURL} />
-				<ListBox Title="Frameworks" Array={frameworks} baseURL={frameworkBaseURL} />
+				<ListBox Title="Languages" TopicFilter="language" Topics={topics} baseURL={topicBaseURL} />
+				<ListBox Title="Frameworks" TopicFilter="framework" Topics={topics} baseURL={topicBaseURL} />
 
 				<h1 className="font-semibold font-sans text-l mt-6 mb-2">About</h1>
 				<p className="font-sans text-soft">
