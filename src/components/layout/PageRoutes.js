@@ -7,7 +7,7 @@ import Home from '../../pages/Home';
 import PageNotFound from '../../pages/PageNotFound';
 import Account from '../../pages/Account';
 import New from '../../pages/New';
-import AccountCreated from '../../pages/AccountCreated';
+import AccountManager from '../../pages/AccountManager';
 import fetch from '../../firebase/fetch';
 
 export default function PageRoutes() {
@@ -36,7 +36,7 @@ export default function PageRoutes() {
 							if (!displayName) {
 								// account just created
 								setUser(userFetched);
-								navigate('/accountcreated');
+								navigate('/accountmanager');
 							} else {
 								setUser(userFetched);
 							}
@@ -53,7 +53,7 @@ export default function PageRoutes() {
 			<Routes location={location} key={location.pathname}>
 				<Route path="/" element={<Home />} />
 				<Route path="/account" element={<Account user={user} />} />
-				<Route path="/accountcreated" element={<AccountCreated user={user} />} />
+				<Route path="/accountmanager" element={<AccountManager user={user} />} />
 				<Route path="/new" element={<New />} />
 				<Route path="*" element={<PageNotFound />} />
 			</Routes>

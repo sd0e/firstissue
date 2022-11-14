@@ -11,11 +11,30 @@ function App() {
 		typography: {
 			fontFamily: [
 				'"Inter"',
-				'sans-serif'
-			],
+				'-apple-system',
+				'BlinkMacSystemFont',
+				'"Segoe UI"',
+				'Roboto',
+				'"Helvetica Neue"',
+				'Arial',
+				'sans-serif',
+				'"Apple Color Emoji"',
+				'"Segoe UI Emoji"',
+				'"Segoe UI Symbol"',
+				'sans-serif',
+			].join(','),
 		},
 		components: {
 			MuiButton: {
+				styleOverrides: {
+					root: {
+						fontWeight: 500,
+						textTransform: 'none',
+						fontFamily: '"Inter", sans-serif',
+					}
+				}
+			}, 
+			MuiTextField: {
 				styleOverrides: {
 					root: {
 						fontWeight: 500,

@@ -1,12 +1,13 @@
 import React from 'react';
-import { Button } from '@mui/material';
-import { DeleteForeverOutlined, Google, LogoutOutlined } from '@mui/icons-material';
+import { Button, Stack } from '@mui/material';
+import { DeleteForeverOutlined, Google, LogoutOutlined, ManageAccountsOutlined } from '@mui/icons-material';
 
 import Header from '../Header';
 import InfoContainer from '../components/ui/InfoContainer';
 import signInUser from '../firebase/signInUser';
 import signOutUser from '../firebase/signOutUser';
 import deleteUserAccount from '../firebase/deleteUserAccount';
+import { Link } from 'react-router-dom';
 
 export default function Account({ user }) {
 	const tryDeleteAccount = () => {
@@ -38,16 +39,22 @@ export default function Account({ user }) {
 					className="mb-6"
 				/>
 				{ user ?
-					<div>
+					<Stack direction="row" spacing={2}>
+						<Link to="/accountmanager">
+							<Button variant="outlined" color="primary">
+								<ManageAccountsOutlined fontSize="small" className="mr-2" />
+								Manage Account
+							</Button>
+						</Link>
 						<Button variant="outlined" color="warning" onClick={signOutUser}>
 							<LogoutOutlined fontSize="small" className="mr-2" />
 							Sign Out
 						</Button>
-						<Button variant="outlined" color="error" onClick={tryDeleteAccount} style={{ marginLeft: '1rem' }}>
+						<Button variant="outlined" color="error" onClick={tryDeleteAccount}>
 							<DeleteForeverOutlined fontSize="small" className="mr-2" />
 							Delete Account
 						</Button>
-					</div>
+					</Stack>
 				:
 					<Button variant="outlined" onClick={signInUser}>
 						<Google fontSize="small" className="mr-2" />

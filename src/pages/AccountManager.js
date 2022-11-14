@@ -8,7 +8,7 @@ import fetch from '../firebase/fetch';
 import write from '../firebase/write';
 import InfoContainer from '../components/ui/InfoContainer';
 
-export default function AccountCreated({ user }) {
+export default function AccountManager({ user }) {
     const [accountState, setAccountState] = useState('Loading');
     const [externalLinks, setExternalLinks] = useState(null);
     const [displayName, setDisplayName] = useState('');
@@ -45,10 +45,21 @@ export default function AccountCreated({ user }) {
 
     const createAccount = () => {
         const userFile = generateUserFile();
+
         if (userFile !== "Error") {
-            write(`/users/${user.uid}/public`, userFile).then(() => {
-                navigate('/account');
-            });
+            if (accountState === 'Account Just Created') {
+                write(`/users/${user.uid}/public`, userFile).then(() => {
+                    navigate('/account');
+                });
+            } else {
+                write(`/users/${user.uid}/public/displayName`, userFile.displayName).then(() => {
+                    write(`/users/${user.uid}/public/organisation`, userFile.organisation).then(() => {
+                        write(`/users/${user.uid}/public/accounts`, userFile.accounts).then(() => {
+                            navigate('/account');
+                        });
+                    });
+                });
+            }
         }
     }
 
@@ -56,20 +67,35 @@ export default function AccountCreated({ user }) {
         if (user && user !== 'Loading') {
             fetch(`/users/${user.uid}/public/displayName`)
                 .then(displayName => {
-                    if (!displayName) {
-                        // account just created
-                        fetch(`/external`).then(fetchedExternalLinks => {
-                            Object.keys(fetchedExternalLinks).forEach(fetchedExternalLinkKey => {
-                                fetchedExternalLinks[fetchedExternalLinkKey].selected = false;
-                                fetchedExternalLinks[fetchedExternalLinkKey].value = '';
-                            });
+                    // account just created
+                    fetch(`/external`).then(fetchedExternalLinks => {
+                        Object.keys(fetchedExternalLinks).forEach(fetchedExternalLinkKey => {
+                            fetchedExternalLinks[fetchedExternalLinkKey].selected = false;
+                            fetchedExternalLinks[fetchedExternalLinkKey].value = '';
+                        });
 
+                        if (!displayName) {
+                            // account just created
                             setExternalLinks(JSON.stringify(fetchedExternalLinks));
                             setAccountState('Account Just Created');
-                        });
-                    } else {
-                        setAccountState('Account Already Created');
-                    }
+                        } else {
+                            fetch(`/users/${user.uid}/public`).then(userInfo => {
+                                setDisplayName(userInfo.displayName);
+                                setOrganisation(userInfo.organisation);
+
+                                const userAccounts = userInfo.accounts;
+                                if (userAccounts) {
+                                    Object.keys(userAccounts).forEach(userAccountKey => {
+                                        fetchedExternalLinks[userAccountKey].selected = true;
+                                        fetchedExternalLinks[userAccountKey].value = userAccounts[userAccountKey];
+                                    });
+                                }
+
+                                setExternalLinks(JSON.stringify(fetchedExternalLinks));
+                                setAccountState('Account Already Created');
+                            });
+                        }
+                    });
                 });
         } else if (user !== 'Loading') {
             setAccountState('User Not Signed In');
@@ -84,28 +110,6 @@ export default function AccountCreated({ user }) {
                     Title="Loading..."
 					Description="Loading page content"
                 />
-            </div>
-        )   
-    } else if (accountState === 'Account Already Created') {
-        return (
-            <div>
-                <Header Title="Account Creation" />
-                <InfoContainer
-                    Title="Account Already Created"
-					Description="You have already created your account"
-                    className="mb-6"
-                />
-                <Stack
-                    direction="row"
-                    spacing={2}
-                >
-                    <Link to="/">
-                        <Button variant="outlined">Home</Button>
-                    </Link>
-                    <Link to="/account">
-                        <Button variant="outlined">Manage Account</Button>
-                    </Link>
-                </Stack>
             </div>
         )   
     } else if (accountState === 'User Not Signed In') {
@@ -131,7 +135,7 @@ export default function AccountCreated({ user }) {
             </div>
         )   
     } else {
-        // Account Just Created
+        // Account Just Created or Already Existing
 
         const localExternalLinks = JSON.parse(externalLinks);
 
@@ -139,22 +143,23 @@ export default function AccountCreated({ user }) {
             <div>
                 <Header Title="Account Creation" />
                 <InfoContainer
-                    Title="Create Account"
-					Description="Fill in the details below to complete your account creation"
+                    Title={accountState === "Account Just Created" ? "Create Account" : "Manage Account"}
+					Description={accountState === "Account Just Created" ? "Fill in the details below to complete your account creation" : "Update the details of your account"}
                     className="mb-6"
                 />
                 <Stack
                     direction="column"
                     spacing={4}
                 >
-                    <TextField label="Display Name" variant="outlined" onChange={e => setDisplayName(e.target.value)} required />
+                    <TextField label="Display Name" variant="outlined" defaultValue={displayName} onChange={e => setDisplayName(e.target.value)} required />
                     <Tooltip title="The name of your organisation. Not required.">
-                        <TextField label="Organization" variant="outlined" onChange={e => setOrganisation(e.target.value)} />
+                        <TextField label="Organization" variant="outlined" defaultValue={organisation} onChange={e => setOrganisation(e.target.value)} />
                     </Tooltip>
                     <h2 className="font-sans font-semibold block pt-4 mw-40 text-xl">Account Links</h2>
                     {Object.keys(localExternalLinks).map(externalLinkKey => {
                         const name = localExternalLinks[externalLinkKey].name;
                         const isSelected = localExternalLinks[externalLinkKey].selected;
+                        const externalLinkValue = localExternalLinks[externalLinkKey].value;
 
                         return (
                             <Stack
@@ -181,6 +186,7 @@ export default function AccountCreated({ user }) {
                                         label="Username"
                                         variant="outlined"
                                         disabled={!isSelected}
+                                        defaultValue={externalLinkValue}
                                         onChange={e => {
                                             let existingExternalLinks = localExternalLinks;
                                             existingExternalLinks[externalLinkKey].value = e.target.value;
@@ -196,7 +202,7 @@ export default function AccountCreated({ user }) {
                         className="w-20"
                         onClick={createAccount}
                     >
-                        Create
+                        {accountState === 'Account Just Created' ? 'Create' : 'Update'}
                     </Button>
                 </Stack>
             </div>
