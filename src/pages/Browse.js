@@ -135,7 +135,7 @@ export default function Browse() {
 							{ Object.keys(JSON.parse(topicContent)).map((issueId, index) => {
 								const issueInfo = JSON.parse(topicContent)[issueId];
 								return <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }} key={issueId}>
-									<Link to={`/issue/${issueId}`} className="text-blue font-sans font-bold">{issueInfo.name}</Link>
+									<Link to={`/issue/${getTopicId(topicValue)}/${issueId}`} className="text-blue font-sans font-bold">{issueInfo.name}</Link>
 									<span className="text-semivisible font-sans text-s">{ utcToRelative(issueInfo.created) }</span>
 								</div>;
 							}) }
