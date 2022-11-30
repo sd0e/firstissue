@@ -1,30 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, InputAdornment, Stack, TextField } from '@mui/material';
 import { SearchOutlined } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { utcToRelative } from 'utctorelative';
 
 import Header from '../Header';
 import InfoContainer from '../components/ui/InfoContainer';
 import fetch from '../firebase/fetch';
 
 export default function Browse() {
+	const defaultTopic = 'js';
+
 	const [topics, setTopics] = useState('Loading');
-	const [topicValue, setTopicValue] = useState('JavaScript');
+	const [topicValue, setTopicValue] = useState(defaultTopic);
+	const [topicContent, setTopicContent] = useState('Loading');
 
 	const navigate = useNavigate();
+
+	let lastTriggered = 0;
+
+	const newLastTriggered = () => {
+		lastTriggered = new Date().getTime();
+	}
+
+	const fetchTopicContent = (topicValue, topicList) => {
+		if (!lastTriggered || new Date().getTime() - lastTriggered >= 200) {
+			newLastTriggered();
+			// last trigger was more than 200 ms ago
+			
+			setTopicContent('Loading');
+			
+			const topicId = getTopicId(topicValue, topicList);
+
+			fetch(`/issues/${topicId}`).then(fetchedTopicContent => {
+				setTopicContent(JSON.stringify(fetchedTopicContent));
+			});	
+		}
+	}
+
+	const newTopicValue = (newValue, topicList = topics) => {
+		setTopicValue(newValue);
+		fetchTopicContent(newValue, topicList);
+	}
 
 	useEffect(() => {
 		const splitPathname = window.location.pathname.split('/');
 
 		if (splitPathname.length === 3 && splitPathname[1] === 'browse') {
-			window['browseTopic'] = splitPathname[2];
-			navigate('/browse', { replace: true });
-		} else {
 			fetch(`/topics`).then(fetchedTopics => {
 				let topicsJSON = {
 					"arr": [],
 					"values": []
 				};
+
+				let thisTopicDisplayName = '';
 		
 				Object.keys(fetchedTopics).forEach(fetchedTopicKey => {
 					topicsJSON['arr'].push({
@@ -34,24 +63,29 @@ export default function Browse() {
 					});
 
 					topicsJSON['values'].push(fetchedTopics[fetchedTopicKey].name);
-				});
 
-				if (window['browseTopic']) {
-					setTopicValue(fetchedTopics[window['browseTopic']].name);
-					window['browseTopic'] = undefined;
-				}
+					if (fetchedTopicKey === splitPathname[2]) thisTopicDisplayName = fetchedTopics[fetchedTopicKey].name;
+				});
 		
 				setTopics(JSON.stringify(topicsJSON));
+
+				newTopicValue(thisTopicDisplayName, JSON.stringify(topicsJSON));
 			});
+		} else {
+			navigate(`/browse/${defaultTopic}`, { replace: true });
 		}
 	}, []);
 
-	const getTopicId = label => {
-		const topicsJSON = JSON.parse(topics);
+	const getTopicId = (label, topicList = topics) => {
+		const topicsJSON = JSON.parse(topicList);
+
+		let topicValue;
 
 		topicsJSON['arr'].forEach(topic => {
-			if (topic.label === label) return topic.value;
+			if (topic.label === label) topicValue = topic.value;
 		});
+
+		return topicValue;
 	}
 
 	if (topics === 'Loading') {
@@ -71,13 +105,14 @@ export default function Browse() {
 				<InfoContainer
 					Title="Browse"
 				/>
-				<Stack direction="row" spacing={2} style={{ marginTop: '1.5rem' }}>
+				<Stack direction="row" spacing={2} style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
 					<Autocomplete
 						disablePortal
 						options={JSON.parse(topics)['values']}
-						inputValue={topicValue}
-						onInputChange={(event, newValue) => {
-							setTopicValue(newValue);
+						value={topicValue}
+						onChange={(event, newValue) => {
+							console.log('changed');
+							if (newValue) newTopicValue(newValue);
 						}}
 						sx={{ width: 300 }}
 						renderInput={(params) => <TextField {...params} label="Topic" />}
@@ -94,6 +129,19 @@ export default function Browse() {
 						}}
 					/>
 				</Stack>
+				{
+					topicContent === 'Loading' ? <InfoContainer Title="Loading" Description="Loading issues for this topic" /> : !JSON.parse(topicContent) ? <InfoContainer Title="No Issues" Description="There are no issues for this topic" /> : (
+						<div style={{ border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.25rem' }}>
+							{ Object.keys(JSON.parse(topicContent)).map((issueId, index) => {
+								const issueInfo = JSON.parse(topicContent)[issueId];
+								return <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }} key={issueId}>
+									<Link to={`/issue/${issueId}`} className="text-blue font-sans font-bold">{issueInfo.name}</Link>
+									<span className="text-semivisible font-sans text-s">{ utcToRelative(issueInfo.created) }</span>
+								</div>;
+							}) }
+						</div>
+					)
+				}
 			</div>
 		)
 	}
