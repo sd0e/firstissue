@@ -46,35 +46,41 @@ const deleteUserAccount = () => {
 		const provider = new GoogleAuthProvider();
 
 		signInWithPopup(auth, provider).then(signinRes => {
-			fetch(`/users/${user.uid}/public/issues`).then(publicIssues => {
-				if (!publicIssues) {
-					deleteAccount();
-				} else {
-					const keys = Object.keys(publicIssues);
-
-					let resolved = new Array(keys.length);
-
-					for (let idx = 0; idx < keys.length; idx++) {
-						const issueId = keys[idx];
-						const issueTopic = publicIssues[issueId];
-
-						deleteIssue(issueId, issueTopic).then(() => {
-							resolved[idx] = true;
-
-							const allResolved = resolved.every(resolve => resolve === true);
-							if (allResolved) {
-								deleteAccount()
-									.then(() => {
-										resolve();
-									})
-									.catch(() => {
-										reject()
-									});
+			fetch(`/users/${user.uid}/banned`).then(isBanned => {
+				if (!isBanned) {
+					fetch(`/users/${user.uid}/public/issues`).then(publicIssues => {
+						if (!publicIssues) {
+							deleteAccount();
+						} else {
+							const keys = Object.keys(publicIssues);
+		
+							let resolved = new Array(keys.length);
+		
+							for (let idx = 0; idx < keys.length; idx++) {
+								const issueId = keys[idx];
+								const issueTopic = publicIssues[issueId];
+		
+								deleteIssue(issueId, issueTopic).then(() => {
+									resolved[idx] = true;
+		
+									const allResolved = resolved.every(resolve => resolve === true);
+									if (allResolved) {
+										deleteAccount()
+											.then(() => {
+												resolve();
+											})
+											.catch(() => {
+												reject()
+											});
+									}
+								});
 							}
-						});
-					}
+						}
+					});
+				} else {
+					deleteAccount().then(() => resolve());
 				}
-			});
+			})
 			
 		});
 	});

@@ -1,13 +1,18 @@
-import { OpenInNewOutlined } from '@mui/icons-material';
+import { ContentCopyOutlined, FileCopyOutlined, Gavel, OpenInNewOutlined } from '@mui/icons-material';
+import { Button, Stack } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import InfoContainer from '../components/ui/InfoContainer';
 import UserIssues from '../components/ui/UserIssues';
+import deleteUserInfo from '../firebase/deleteUserInfo';
 import fetch from '../firebase/fetch';
 import Header from '../Header';
 
-export default function Profile() {
+export default function Profile({ user }) {
     const [userInfo, setUserInfo] = useState('Loading');
+
+    let navigate = useNavigate();
 
     useEffect(() => {
         const splitPathname = window.location.pathname.split('/');
@@ -16,21 +21,33 @@ export default function Profile() {
 
         if (username && username !== '') {
             fetch(`/users/${username}/public`).then(publicInfo => {
-                publicInfo.uid = username;
+                if (publicInfo) {
+                    publicInfo.uid = username;
 
-                if (publicInfo.accounts) {
-                    fetch(`/external`).then(externalLinks => {
-                        publicInfo.externalLinks = externalLinks;
+                    if (publicInfo.accounts) {
+                        fetch(`/external`).then(externalLinks => {
+                            publicInfo.externalLinks = externalLinks;
+                            setUserInfo(publicInfo);
+                        })
+                    } else {
                         setUserInfo(publicInfo);
-                    })
+                    }
                 } else {
-                    setUserInfo(publicInfo);
+                    setUserInfo(null);
                 }
             });
         } else {
             setUserInfo(null);
         }
     }, []);
+
+    const copyUID = () => {
+        navigator.clipboard.writeText(userInfo.uid).then(() => {
+			window.alert('Text successfully copied', 1);
+		}, err => {
+			window.alert(`Error copying text.\n\nError: ${err}`, 2);
+		});
+    }
 
     if (userInfo === 'Loading') {
 		return (
@@ -48,7 +65,7 @@ export default function Profile() {
 			    <Header Title="User Not Found" />
 				<InfoContainer
 					Title="User Not Found"
-					Description="This user could not be found"
+					Description="This user could not be found."
 				/>
 			</div>
 		)
@@ -77,6 +94,16 @@ export default function Profile() {
                 }) }
             </div> }
             { userInfo.issues ? <UserIssues issues={userInfo.issues} /> : <p className="text-semivisible">This user currently has no active issues.</p> }
+            { user && user.isAdmin && <Stack direction="row" spacing={2} style={{ marginTop: '1.5rem' }}>
+                <Button variant="outlined" color="primary" onClick={copyUID}>
+                    <ContentCopyOutlined fontSize="small" style={{ marginRight: '0.5rem' }} />
+                    Copy UID
+                </Button>
+                <Button variant="outlined" color="error" onClick={() => deleteUserInfo(userInfo.uid, user).then(() => navigate(-1))}>
+                    <Gavel fontSize="small" style={{ marginRight: '0.5rem' }} />
+                    Ban User
+                </Button>
+            </Stack> }
 		</div>
 	)
 }
