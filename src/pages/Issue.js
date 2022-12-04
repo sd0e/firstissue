@@ -24,7 +24,7 @@ export default function Issue(user) {
 
     useEffect(() => {
         fetch(`/issues/${issueTopic}/${issueId}`).then(fetchedIssueInfo => {
-            setIssueInfo(JSON.stringify(fetchedIssueInfo));
+            fetchedIssueInfo === null ? setIssueInfo(null) : setIssueInfo(JSON.stringify(fetchedIssueInfo));
         });
     }, []);
 
@@ -99,11 +99,11 @@ export default function Issue(user) {
                             Open Issue
                         </Button>
                     </a>
-                    { user.user.uid === parsedInfo.creator && <Button variant="outlined" color="secondary" onClick={() => setChangeStatusOpen(true)}>
+                    { user.user && user.user.uid === parsedInfo.creator && <Button variant="outlined" color="secondary" onClick={() => setChangeStatusOpen(true)}>
                         <EditAttributesOutlined fontSize="small" className="mr-2" />
                         Change Status
                     </Button> }
-                    { user.user.uid === parsedInfo.creator && <Button variant="outlined" color="error" onClick={deleteIssue}>
+                    { user.user && user.user.uid === parsedInfo.creator && <Button variant="outlined" color="error" onClick={deleteIssue}>
                         <DeleteForeverOutlined fontSize="small" className="mr-2" />
                         Delete Issue
                     </Button> }

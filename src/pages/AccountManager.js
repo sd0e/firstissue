@@ -49,13 +49,13 @@ export default function AccountManager({ user }) {
         if (userFile !== "Error") {
             if (accountState === 'Account Just Created') {
                 write(`/users/${user.uid}/public`, userFile).then(() => {
-                    navigate('/account');
+                    window.location.href = '/account';
                 });
             } else {
                 write(`/users/${user.uid}/public/displayName`, userFile.displayName).then(() => {
                     write(`/users/${user.uid}/public/organisation`, userFile.organisation).then(() => {
                         write(`/users/${user.uid}/public/accounts`, userFile.accounts).then(() => {
-                            navigate('/account');
+                            navigate(`/profile/${user.uid}`);
                         });
                     });
                 });

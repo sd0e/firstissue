@@ -2,6 +2,7 @@ import { OpenInNewOutlined } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 
 import InfoContainer from '../components/ui/InfoContainer';
+import UserIssues from '../components/ui/UserIssues';
 import fetch from '../firebase/fetch';
 import Header from '../Header';
 
@@ -15,6 +16,8 @@ export default function Profile() {
 
         if (username && username !== '') {
             fetch(`/users/${username}/public`).then(publicInfo => {
+                publicInfo.uid = username;
+
                 if (publicInfo.accounts) {
                     fetch(`/external`).then(externalLinks => {
                         publicInfo.externalLinks = externalLinks;
@@ -56,8 +59,9 @@ export default function Profile() {
             <InfoContainer
                 Title={userInfo.displayName}
                 Description={userInfo.organisation || ''}
+                className="mb-4"
             />
-            { userInfo.accounts && <div>
+            { userInfo.accounts && <div style={{ marginBottom: '1.5rem' }}>
                 {/* <h2 className="font-sans font-semibold text-semivisible mt-4 text-l">External Links</h2> */}
                 { Object.keys(userInfo.accounts).map(userAccountService => {
                     const userAccountServiceUsername = userInfo.accounts[userAccountService];
@@ -72,6 +76,7 @@ export default function Profile() {
                     </a>
                 }) }
             </div> }
+            { userInfo.issues ? <UserIssues issues={userInfo.issues} /> : <p className="text-semivisible">This user currently has no active issues.</p> }
 		</div>
 	)
 }

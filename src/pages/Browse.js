@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Autocomplete, Button, InputAdornment, Stack, TextField } from '@mui/material';
 import { AddOutlined, SearchOutlined } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
-import { utcToRelative } from 'utctorelative';
 
 import Header from '../Header';
 import InfoContainer from '../components/ui/InfoContainer';
 import fetch from '../firebase/fetch';
+import IssueList from '../components/ui/IssueList';
 
 export default function Browse() {
 	const defaultTopic = 'js';
@@ -140,19 +140,7 @@ export default function Browse() {
 							</Link>
 						</div>
 					) : (
-						<div style={{ border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.25rem' }}>
-							{ Object.keys(JSON.parse(topicContent)).map((issueId, index) => {
-								const issueInfo = JSON.parse(topicContent)[issueId];
-								if (issueInfo.status === 'assigned') {
-									return;
-								} else {
-									return <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }} key={issueId}>
-										<Link to={`/issue/${getTopicId(topicValue)}/${issueId}`} className="text-blue font-sans font-bold">{issueInfo.name}</Link>
-										<span className="text-semivisible font-sans text-s">{ utcToRelative(issueInfo.created) }</span>
-									</div>;
-								}
-							}) }
-						</div>
+						<IssueList list={JSON.parse(topicContent)} getTopicId={getTopicId} topicValue={topicValue} />
 					)
 				}
 			</div>
