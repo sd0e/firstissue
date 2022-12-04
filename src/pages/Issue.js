@@ -31,7 +31,9 @@ export default function Issue(user) {
     const deleteIssue = () => {
         write(`/users/${user.user.uid}/public/issues/${issueId}`, null).then(() => {
             write(`/issues/${issueTopic}/${issueId}`, null).then(() => {
-                navigate('/account');
+                write(`/allIssues/${issueId}`, null).then(() => {
+                    navigate('/account');
+                });
             });
         });
     }

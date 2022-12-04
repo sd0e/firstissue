@@ -40,6 +40,7 @@ export default function PageRoutes() {
 								setUser(userFetched);
 								navigate('/accountmanager');
 							} else {
+								userFetched.accountName = displayName;
 								setUser(userFetched);
 							}
 						});
@@ -58,7 +59,7 @@ export default function PageRoutes() {
 				<Route path="/issue/*" element={<Issue user={user} />} />
 				<Route path="/account" element={<Account user={user} />} />
 				<Route path="/accountmanager" element={<AccountManager user={user} />} />
-				<Route path="/new" element={<New />} />
+				<Route path="/new" element={<New user={user} />} />
 				<Route path="*" element={<PageNotFound />} />
 			</Routes>
 		</Layout>

@@ -111,7 +111,6 @@ export default function Browse() {
 						options={JSON.parse(topics)['values']}
 						value={topicValue}
 						onChange={(event, newValue) => {
-							console.log('changed');
 							if (newValue) newTopicValue(newValue);
 						}}
 						sx={{ width: 300 }}
@@ -134,10 +133,14 @@ export default function Browse() {
 						<div style={{ border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.25rem' }}>
 							{ Object.keys(JSON.parse(topicContent)).map((issueId, index) => {
 								const issueInfo = JSON.parse(topicContent)[issueId];
-								return <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }} key={issueId}>
-									<Link to={`/issue/${getTopicId(topicValue)}/${issueId}`} className="text-blue font-sans font-bold">{issueInfo.name}</Link>
-									<span className="text-semivisible font-sans text-s">{ utcToRelative(issueInfo.created) }</span>
-								</div>;
+								if (issueInfo.status === 'assigned') {
+									return;
+								} else {
+									return <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }} key={issueId}>
+										<Link to={`/issue/${getTopicId(topicValue)}/${issueId}`} className="text-blue font-sans font-bold">{issueInfo.name}</Link>
+										<span className="text-semivisible font-sans text-s">{ utcToRelative(issueInfo.created) }</span>
+									</div>;
+								}
 							}) }
 						</div>
 					)
