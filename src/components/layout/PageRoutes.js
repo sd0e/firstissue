@@ -10,6 +10,7 @@ import New from '../../pages/New';
 import AccountManager from '../../pages/AccountManager';
 import Browse from '../../pages/Browse';
 import Issue from '../../pages/Issue';
+import Profile from '../../pages/Profile';
 import fetch from '../../firebase/fetch';
 
 export default function PageRoutes() {
@@ -60,6 +61,7 @@ export default function PageRoutes() {
 				<Route path="/account" element={<Account user={user} />} />
 				<Route path="/accountmanager" element={<AccountManager user={user} />} />
 				<Route path="/new" element={<New user={user} />} />
+				<Route path="/profile/*" element={<Profile />} />
 				<Route path="*" element={<PageNotFound />} />
 			</Routes>
 		</Layout>

@@ -86,7 +86,7 @@ export default function Issue(user) {
                 <InfoContainer Title={parsedInfo.name} Description={utcToRelative(parsedInfo.created)} />
 			    <h1 className="font-semibold font-sans text-l text-semivisible mt-2">
                     <AccountCircleOutlined fontSize="small" style={{ marginRight: '0.5rem' }} />
-                    <Link to={`/user/${parsedInfo.creator}`} style={{ textDecoration: 'underline' }}>{parsedInfo.creatorDisplayName}</Link>
+                    <Link to={`/profile/${parsedInfo.creator}`} style={{ textDecoration: 'underline' }}>{parsedInfo.creatorDisplayName}</Link>
                 </h1>
                 <div style={{ margin: '1.5rem 0rem', maxWidth: 'max-content' }}>
                     <StatusCircle status={parsedInfo.status} />
