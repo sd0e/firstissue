@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, InputAdornment, Stack, TextField } from '@mui/material';
-import { SearchOutlined } from '@mui/icons-material';
+import { Autocomplete, Button, InputAdornment, Stack, TextField } from '@mui/material';
+import { AddOutlined, SearchOutlined } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { utcToRelative } from 'utctorelative';
 
@@ -129,7 +129,17 @@ export default function Browse() {
 					/>
 				</Stack>
 				{
-					topicContent === 'Loading' ? <InfoContainer Title="Loading" Description="Loading issues for this topic" /> : !JSON.parse(topicContent) ? <InfoContainer Title="No Issues" Description="There are no issues for this topic" /> : (
+					topicContent === 'Loading' ? <InfoContainer Title="Loading" Description="Loading issues for this topic" /> : !JSON.parse(topicContent) ? (
+						<div>
+							<InfoContainer Title="No Issues" Description="There are no issues for this topic" />
+							<Link to="/new" aria-label="Create a new issue">
+								<Button variant="outlined" style={{ marginTop: '1.5rem' }}>
+									<AddOutlined />
+									Create an Issue
+								</Button>
+							</Link>
+						</div>
+					) : (
 						<div style={{ border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.25rem' }}>
 							{ Object.keys(JSON.parse(topicContent)).map((issueId, index) => {
 								const issueInfo = JSON.parse(topicContent)[issueId];
