@@ -29,7 +29,7 @@ export default function Issue(user) {
     }, []);
 
     const deleteIssue = () => {
-        write(`/users/${user.user.uid}/public/issues/${issueId}`, null).then(() => {
+        write(`/users/${JSON.parse(issueInfo).creator}/public/issues/${issueId}`, null).then(() => {
             write(`/issues/${issueTopic}/${issueId}`, null).then(() => {
                 write(`/allIssues/${issueId}`, null).then(() => {
                     navigate('/account');
@@ -108,6 +108,12 @@ export default function Issue(user) {
                         Delete Issue
                     </Button> }
                 </Stack>
+                { user.user && user.user.isAdmin && <Stack direction="row" spacing={2} style={{ marginTop: '1.5rem' }}>
+                    <Button variant="outlined" color="error" onClick={deleteIssue}>
+                        <DeleteForeverOutlined fontSize="small" style={{ marginRight: '0.5rem' }} />
+                        Delete Issue
+                    </Button>
+                </Stack> }
             </div>
         )
     }

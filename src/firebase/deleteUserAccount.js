@@ -78,7 +78,9 @@ const deleteUserAccount = () => {
 						}
 					});
 				} else {
-					deleteAccount().then(() => resolve());
+					write(`/users/${user.uid}`, null).then(() => {
+						deleteAccount().then(() => resolve());
+					}).catch(err => window.alert(err));
 				}
 			})
 			
